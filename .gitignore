@@ -1,0 +1,57 @@
+# ===== 依赖 =====
+node_modules/
+**/node_modules/
+
+# ===== 构建产物 / 安装包（发布走 GitHub Releases，不进仓库） =====
+web/dist/
+web/dist-offline/
+*.tsbuildinfo
+desktop/release/
+desktop/pcshots/
+android/build/
+android/.probe/
+android/backup-www/
+android/assets/www/
+android/assets/*.zip
+*.apk
+*.apk.idsig
+*.aab
+*.exe
+*.blockmap
+*.dmg
+
+# ===== 缓存 / 测试数据库 / 本地上传目录 =====
+gateway/.cache/
+gateway/.test/
+data/
+fixtures/
+shots/
+hongguo_ref/
+rollback_www/
+tools/
+www.zip
+desktop/latest.yml
+
+# ===== 密钥 / 本地配置（绝不提交） =====
+*.jks
+*.keystore
+*.p12
+local.properties
+.env
+.env.local
+web/.env.production
+.gradle/
+.idea/
+*.iml
+*.log
+*.bak-*
+
+# ===== Python =====
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ===== 系统 / 编辑器 =====
+.DS_Store
+Thumbs.db

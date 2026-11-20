@@ -1,0 +1,66 @@
+# 可选：给自己的域名套 HTTPS 时使用。
+# 把 your-domain.example 全部替换成你的域名，证书路径按实际修改。
+# 网关默认监听 127.0.0.1:8080；如果你改了 PORT，下面一起改。
+
+server {
+    listen 80;
+    server_name your-domain.example;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen 443 quic;
+    http2 on;
+    server_name your-domain.example;
+
+    ssl_certificate     /etc/letsencrypt/live/your-domain.example/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.example/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers EECDH+CHACHA20:EECDH+AESGCM:EECDH+AES;
+    ssl_prefer_server_ciphers on;
+
+    add_header X-Content-Type-Options nosniff;
+
+    client_max_body_size 8m;
+
+    # HLS 清单 / 密钥 / 分片：不缓冲，边下边播
+    location /media/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_buffering off;
+        proxy_request_buffering off;
+        proxy_read_timeout 120s;
+        proxy_send_timeout 120s;
+    }
+
+    # 封面：可长缓存
+    location /img {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800";
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+    }
+
+    # index.html 不缓存；带 hash 的静态资源由网关自己带 Cache-Control
+    location = /index.html {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        add_header Cache-Control "no-cache";
+    }
+}

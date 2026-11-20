@@ -1,0 +1,27 @@
+[Unit]
+Description=HG gateway (content source + static web)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/hg/gateway
+Environment=HOST=0.0.0.0
+Environment=PORT=8080
+Environment=WEB_DIR=/opt/hg/web/dist
+Environment=CACHE_DIR=/opt/hg/cache
+Environment=UPSTREAM=https://your-upstream.example
+Environment=SEG_CACHE=1
+Environment=API_TTL=20
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /opt/hg/gateway/app.py
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+# 轻量加固
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,26 @@
+services:
+  gateway:
+    build: ./gateway
+    container_name: hg-gateway
+    environment:
+      UPSTREAM: "${UPSTREAM:-https://your-upstream.example}"
+      CACHE_DIR: "/cache"
+      SEG_CACHE: "1"
+      API_TTL: "20"
+    volumes:
+      - media_cache:/cache
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  web:
+    build: ./web
+    container_name: hg-web
+    depends_on:
+      - gateway
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
+volumes:
+  media_cache:
